@@ -384,8 +384,14 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Fixe Ausgaben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fix Expenses"
           }
         }
       }
@@ -447,6 +453,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Monatsbilanz"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly Balance"
           }
         }
       }

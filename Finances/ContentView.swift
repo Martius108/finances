@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+// Main View as TabView holding all data
 struct ContentView: View {
     
     @Environment(\.modelContext) private var modelContext
