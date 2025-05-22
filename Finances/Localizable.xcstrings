@@ -36,6 +36,22 @@
         }
       }
     },
+    "%lf" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lf"
+          }
+        }
+      }
+    },
     "Add transaction" : {
       "localizations" : {
         "de" : {
@@ -52,18 +68,18 @@
         }
       }
     },
-    "All spendings here" : {
+    "All Expenses" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle Ausgaben hier"
+            "value" : "Alle Ausgaben"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All spendings here"
+            "value" : "All Expenses"
           }
         }
       }
@@ -100,28 +116,18 @@
         }
       }
     },
-    "Anfangssaldo:" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anfangssaldo:"
-          }
-        }
-      }
-    },
     "Background Color" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Hintergrundfarbe"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bacjground Color"
+            "value" : "Background Color"
           }
         }
       }
@@ -158,19 +164,6 @@
         }
       }
     },
-    "Betrag:" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Betrag:"
-          }
-        }
-      }
-    },
-    "Bitte gültige Werte für Anfangs- und Endsaldo eingeben." : {
-
-    },
     "Category" : {
       "localizations" : {
         "de" : {
@@ -183,6 +176,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Category"
+          }
+        }
+      }
+    },
+    "Category:" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorie:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category:"
+          }
+        }
+      }
+    },
+    "category.clothing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kleidung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clothing"
+          }
+        }
+      }
+    },
+    "category.electricity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strom"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Electricity"
           }
         }
       }
@@ -238,6 +281,23 @@
         }
       }
     },
+    "category.household" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Haushalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hosehold"
+          }
+        }
+      }
+    },
     "category.income" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -255,6 +315,40 @@
         }
       }
     },
+    "category.insurance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versicherung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insurance"
+          }
+        }
+      }
+    },
+    "category.internet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        }
+      }
+    },
     "category.other" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -268,6 +362,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Balance"
+          }
+        }
+      }
+    },
+    "category.rent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miete"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rent"
           }
         }
       }
@@ -306,6 +417,22 @@
         }
       }
     },
+    "Copy Fixed Expenses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiere fixe Ausgaben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Fixed Expenses"
+          }
+        }
+      }
+    },
     "Dark" : {
       "localizations" : {
         "de" : {
@@ -318,6 +445,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dark"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeiten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
           }
         }
       }
@@ -342,8 +501,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Abschlusssaldo"
+            "state" : "translated",
+            "value" : "Abschlusssaldo:"
           }
         },
         "en" : {
@@ -354,12 +513,34 @@
         }
       }
     },
-    "Endsaldo:" : {
+    "End previous month" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anfangsssaldo"
+            "value" : "Ende Vormonat"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End previous month"
+          }
+        }
+      }
+    },
+    "End this month" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ende dieser Monat"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End this month"
           }
         }
       }
@@ -380,6 +561,38 @@
         }
       }
     },
+    "Fixed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fix"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixed"
+          }
+        }
+      }
+    },
+    "Fixed Expense" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixe Ausgabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixed Expense"
+          }
+        }
+      }
+    },
     "Fixed Expenses" : {
       "localizations" : {
         "de" : {
@@ -396,14 +609,37 @@
         }
       }
     },
-    "Jährliche Ausgabe speichern" : {
-
+    "Household" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haushalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Household"
+          }
+        }
+      }
     },
-    "Jährliche Ausgaben" : {
-
-    },
-    "Lade Einstellungen..." : {
-
+    "Income" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einkommen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Income"
+          }
+        }
+      }
     },
     "Light" : {
       "localizations" : {
@@ -417,16 +653,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Light"
-          }
-        }
-      }
-    },
-    "Monat" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Monat"
           }
         }
       }
@@ -447,6 +673,22 @@
         }
       }
     },
+    "Month:" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monat:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month:"
+          }
+        }
+      }
+    },
     "Monthly Balance" : {
       "localizations" : {
         "de" : {
@@ -463,22 +705,82 @@
         }
       }
     },
-    "Saldo erfassen" : {
+    "New Expense value" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Ausgabe"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saldo erfassen"
+            "value" : "New Expense Value"
           }
         }
       }
     },
-    "Saldo speichern" : {
+    "No data available" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Daten verfügbar"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saldo speichern"
+            "value" : "No data available"
+          }
+        }
+      }
+    },
+    "No data available yet. \nPlease add some expenses.\nIf you start with January all fixed Expenses can be used for for the rest of the year. If you'd like to use this feature, please enable it below. \nThese values can be edited for each month later on in the Settings.\nUse this icon below %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Daten vorhanden. Bitte füge einige Ausgaben und/oder Einnahmen hinzu. Wenn du mit Januar beginnst, kannst du alle fixen Ausgaben für den Rest des Jahres übernehmen. Gib dieses Feature mit dem Schalter frei. Nutze für die Dateneingabe dieses Symbol %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data available yet. \nPlease add some expenses.\nIf you start with January all fixed Expenses can be used for the rest of the year. If you'd like to use this feature, please enable it below. \nThese values can be edited for each month later on in the Settings.\nUse this icon below %@"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "Save Balance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Balance"
           }
         }
       }
@@ -531,6 +833,22 @@
         }
       }
     },
+    "Show Yearly Balance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeige Jahresbilanz"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Yearly Balance"
+          }
+        }
+      }
+    },
     "Spendings" : {
       "localizations" : {
         "de" : {
@@ -552,7 +870,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anfangssaldo"
+            "value" : "Anfangssaldo:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Balance:"
           }
         }
       }
@@ -589,16 +913,6 @@
         }
       }
     },
-    "Transaktion hinzufügen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transaktion hinzufügen"
-          }
-        }
-      }
-    },
     "Type" : {
       "localizations" : {
         "de" : {
@@ -615,12 +929,82 @@
         }
       }
     },
+    "Type:" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typ:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type:"
+          }
+        }
+      }
+    },
     "Value" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Value"
+          }
+        }
+      }
+    },
+    "Variable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variabel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variable"
+          }
+        }
+      }
+    },
+    "Variable Expense" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variable Ausgabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variable Expense"
+          }
+        }
+      }
+    },
+    "Variable Expenses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variable Ausgaben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variable Expenses"
           }
         }
       }
@@ -641,14 +1025,21 @@
         }
       }
     },
-    "z. B. 1200" : {
-
-    },
-    "z. B. 2000" : {
-
-    },
-    "z. B. 2600" : {
-
+    "Yearly Balance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jahresbilanz "
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yearly Balance"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -8,10 +8,16 @@
 import Foundation
 
 enum Category: String, CaseIterable {
+    case income
     case vacation
     case expense
     case fixExpense
     case restaurant
+    case rent
+    case electricity
+    case internet
+    case insurance
+    case clothing
     case household
 }
 

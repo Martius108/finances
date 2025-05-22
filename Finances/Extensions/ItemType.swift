@@ -11,18 +11,14 @@ enum ItemType: String, CaseIterable {
     case income
     case fixedExpense
     case variableExpense
-    case startingBalance
-    case yearlyExpense
     case calculatedHousehold
 
     var localizedName: String {
         switch self {
-        case .income: return "Income"
-        case .fixedExpense: return "Fixed Expense"
-        case .variableExpense: return "Variable Expense"
-        case .startingBalance: return "Balance"
-        case .yearlyExpense: return "Jearly Expense"
-        case .calculatedHousehold: return "Household"
+        case .income: return NSLocalizedString("Income", comment: "")
+        case .fixedExpense: return NSLocalizedString("Fixed Expense", comment: "")
+        case .variableExpense: return NSLocalizedString("Variable Expense", comment: "")
+        case .calculatedHousehold: return NSLocalizedString("Household", comment: "")
         }
     }
 }

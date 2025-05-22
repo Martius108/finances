@@ -19,7 +19,7 @@ struct FinanceManager {
             .map(\.amount)
             .reduce(0, +)
         
-        print("Einnahmen für \(month)/\(year): \(incomeTotal)")
+        print("Income for \(month)/\(year): \(incomeTotal)")
         return incomeTotal
     }
     
@@ -32,7 +32,7 @@ struct FinanceManager {
             .map(\.amount)
             .reduce(0, +)
         
-        print("Ausgaben für \(month)/\(year): \(expensesTotal)")
+        print("Expenses for \(month)/\(year): \(expensesTotal)")
         return expensesTotal
     }
     
@@ -42,38 +42,33 @@ struct FinanceManager {
         year: Int,
         balances: [MonthlyBalance]
     ) -> (Double, Double) {
-        // Hole den Startsaldo für den Monat (basierend auf dem Startsaldo des aktuellen Monats)
+        // Get the start balance value for chosen month
         let startBalance = balances.first(where: {
             let comps = Calendar.current.dateComponents([.year, .month], from: $0.month)
             return comps.year == year && comps.month == month
         })?.startBalance ?? 0.0
 
-        // Hole den Endsaldo für den aktuellen Monat
+        // Get the end balance value for the chosen month
         let endBalance = balances.first(where: {
             let comps = Calendar.current.dateComponents([.year, .month], from: $0.month)
             return comps.year == year && comps.month == month
         })?.endBalance ?? 0.0
 
-        // Debug: Zeige, welches Monat/Jahr ausgewählt ist
-        print("DEBUG → Ausgewähltes Monat/Jahr: \(month)/\(year)")
-        print("DEBUG → StartBalance: \(startBalance), EndBalance: \(endBalance)")
+        // Debug: Show month and year
+        print("Month / Year: \(month)/\(year)")
+        print("Start Balance: \(startBalance), End Balance: \(endBalance)")
 
-        // Berechne die Einnahmen und Ausgaben
+        // Calculate monthly balance
         let incomeTotal = income(items: items, month: month, year: year)
         let expensesTotal = expenses(items: items, month: month, year: year)
-
-        // Berechne den Saldo (Endsaldo - Startsaldo)
         let saldo = endBalance - startBalance
-        print("StartBalance: \(startBalance)")
-        print("EndBalance: \(endBalance)")
 
-        // Berechne die Haushaltsausgaben
+        // Household spendings
         let householdSpending = incomeTotal - expensesTotal - saldo
+        print("Income: \(incomeTotal), Expenses: \(expensesTotal), Balance: \(saldo)")
+        print("Household Spendings: \(householdSpending)")
 
-        print("Einnahmen: \(incomeTotal), Ausgaben: \(expensesTotal), Saldo: \(saldo)")
-        print("Berechnete Haushaltsausgaben: \(householdSpending)")
-
-        return (max(householdSpending, 0), saldo) // Negative Werte vermeiden
+        return (max(householdSpending, 0), saldo)
     }
     
     func calculateMonthlyExpenseFromYearly(yearlyExpense: Double) -> Double {

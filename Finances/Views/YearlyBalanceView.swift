@@ -1,16 +1,15 @@
 //
-//  BalanceView.swift
+//  YearlyBalanceView.swift
 //  Finances
 //
-//  Created by Martin Lanius on 28.04.25.
+//  Created by Martin Lanius on 05.05.25.
 //
 
 import SwiftUI
 import SwiftData
 import Charts
 
-struct BalanceView: View {
-    
+struct YearlyBalanceView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) var colorScheme
     @Bindable var settings: Settings
@@ -18,16 +17,14 @@ struct BalanceView: View {
     @Query var fetchedItems: [Transaction]
     @Query var balances: [MonthlyBalance]
     
-    @AppStorage("copyFixedExpenses") private var copyFixedExpenses: Bool = false
-    
-    // State for month and year
+    // State für den Monat und das Jahr
     @Binding var selectedMonth: Int
     @Binding var selectedYear: Int
-    // Prepare for detailed view of variable and fixed expenses
-    @State private var showVariableDetail = false
-    @State private var selectedVariableItems: [Transaction] = []
+
     @State private var showFixedDetail = false
+    @State private var showVariableDetail = false
     @State private var selectedFixedItems: [Transaction] = []
+    @State private var selectedVariableItems: [Transaction] = []
     
     var householdSpending: Double {
         let financeManager = FinanceManager()
@@ -37,10 +34,11 @@ struct BalanceView: View {
             year: selectedYear,
             balances: balances
         )
+        debugPrint("Household Spending calculation for \(selectedMonth)/\(selectedYear): \(value)")
         return value
     }
     
-    // Flter by month and year
+    // Funktion zum Filtern der Items nach Monat und Jahr
     func filteredItems(for month: Int, year: Int) -> [Transaction] {
         let filtered = fetchedItems.filter { item in
             let itemDate = item.date
@@ -48,72 +46,70 @@ struct BalanceView: View {
             let itemYear = Calendar.current.component(.year, from: itemDate)
             return itemMonth == month && itemYear == year
         }
+        // Debugging der gefilterten Transaktionen
+        debugPrint("Filtered Items for \(month)/\(year): \(filtered.count) items found.")
+        filtered.forEach { item in
+            debugPrint("→ Item: \(item.type.rawValue), \(item.category), \(item.amount), \(item.date)")
+        }
         return filtered
     }
     
     var body: some View {
         NavigationStack {
+            // Hintergrundfarbe über den gesamten Bildschirm, ignoriert Safe Area
+            //Color(hex: settings.backgroundColor)
+                //.ignoresSafeArea()
             VStack {
                 Spacer()
-                Text("Monthly Balance")
+                Text("Yearly Balance")
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                     .font(.title2)
                     .bold()
                     .padding(.bottom, 8)
                 
-                Spacer(minLength: 20)
+                Spacer(minLength: 40)  // Abstand zwischen Picker und Bilanz
                 
-                // Select month and yer
-                HStack {
-                    Picker("Month", selection: $selectedMonth) {
-                        ForEach(1..<13) { month in
-                            Text(Calendar.current.monthSymbols[month - 1]).tag(month)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(width: 150, height: 50)
-                    
-                    Picker("Year", selection: $selectedYear) {
-                        ForEach(2023...Calendar.current.component(.year, from: Date()), id: \.self) { year in
-                            Text(String(year))
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(width: 100, height: 50)
-                }
-                
-                Spacer(minLength: 20)
-                
+                let yearMonths = (1...12)
                 let calculator = FinanceManager()
-                let (_, saldo) = calculator.calculatedHouseholdExpense(
-                    items: fetchedItems,
-                    month: selectedMonth,
-                    year: selectedYear,
-                    balances: balances
-                )
-                let net = saldo
-                Text("Balance: \(net, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))")
+
+                let yearlyHousehold = yearMonths.reduce(0.0) { total, month in
+                    let (household, _) = calculator.calculatedHouseholdExpense(
+                        items: fetchedItems,
+                        month: month,
+                        year: selectedYear,
+                        balances: balances
+                    )
+                    return total + household
+                }
+
+                let yearlyTransactions = fetchedItems.filter {
+                    Calendar.current.component(.year, from: $0.date) == selectedYear
+                }
+
+                let yearlyFixed = yearlyTransactions.filter { $0.type == .fixedExpense }
+                    .map { abs($0.amount) }
+                    .reduce(0, +)
+
+                let yearlyVariable = yearlyTransactions.filter { $0.type == .variableExpense }
+                    .map { abs($0.amount) }
+                    .reduce(0, +)
+
+                let yearlyNetBalance = balances
+                    .filter { Calendar.current.component(.year, from: $0.month) == selectedYear }
+                    .map { $0.endBalance - $0.startBalance }
+                    .reduce(0, +)
+
+                let variableAmount = yearlyVariable
+                let fixedAmount = yearlyFixed
+                let householdSpending = yearlyHousehold
+                
+                Text("Balance: \(yearlyNetBalance, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))")
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                     .font(.headline)
                     .padding(.bottom, 10)
                 
-                Spacer(minLength: 20)
+                Spacer(minLength: 30)  // Abstand zwischen Bilanz und Tortendiagramm
                 
-                // Optimized filter logic
-                let filteredItems = fetchedItems.filter {
-                    Calendar.current.component(.month, from: $0.date) == selectedMonth &&
-                    Calendar.current.component(.year, from: $0.date) == selectedYear
-                }
-                let variableAmount = filteredItems
-                    .filter { $0.type == .variableExpense }
-                    .map { abs($0.amount) }
-                    .reduce(0, +)
-
-                let fixedAmount = filteredItems
-                    .filter { $0.type == .fixedExpense }
-                    .map { abs($0.amount) }
-                    .reduce(0, +)
-
                 let fixSegment = PieSegment(
                     segmentType: .fixed,
                     name: NSLocalizedString("Fixed", comment: ""),
@@ -138,13 +134,13 @@ struct BalanceView: View {
                 let saldoSegment = PieSegment(
                     segmentType: .balance,
                     name: NSLocalizedString("Balance", comment: ""),
-                    value: net,
+                    value: yearlyNetBalance,
                     color: .green
                 )
 
                 let allSegments: [PieSegment] = {
                     var segments = [householdSegment, fixSegment, variableSegment]
-                    if net > 0 {
+                    if yearlyNetBalance > 0 {
                         segments.append(saldoSegment)
                     }
                     return segments
@@ -161,13 +157,10 @@ struct BalanceView: View {
                                     angularInset: 1
                                 )
                                 .foregroundStyle(segment.color)
-                                .accessibilityLabel(segment.name) // Set for detailed view
-                                .accessibilityValue("\(segment.value)") // Set for detailed view
                             }
                         }
                         .frame(height: 300)
                         .padding()
-                        // Overlay to make this part clickable for details
                         .overlay(
                             GeometryReader { geometry in
                                 let size = geometry.size
@@ -189,7 +182,6 @@ struct BalanceView: View {
                                             let segmentAngle = segment.value / total * 360.0
                                             let rawStart = currentAngle
                                             let rawEnd = currentAngle + segmentAngle
-                                            // Wende Korrektur nur auf Start/Ende an (nun -90 Grad)
                                             let start = (rawStart - 90).truncatingRemainder(dividingBy: 360)
                                             let end = (rawEnd - 90).truncatingRemainder(dividingBy: 360)
                                             angleMap.append((segment, start, end))
@@ -205,13 +197,16 @@ struct BalanceView: View {
                                             }
 
                                             if inSegment {
-                                                debugPrint("Segment matched: \(segment.name)")
                                                 switch segment.segmentType {
                                                 case .fixed:
-                                                    selectedFixedItems = filteredItems.filter { $0.type == .fixedExpense }
+                                                    selectedFixedItems = fetchedItems.filter {
+                                                        Calendar.current.component(.year, from: $0.date) == selectedYear && $0.type == .fixedExpense
+                                                    }
                                                     showFixedDetail = true
                                                 case .variable:
-                                                    selectedVariableItems = filteredItems.filter { $0.type == .variableExpense }
+                                                    selectedVariableItems = fetchedItems.filter {
+                                                        Calendar.current.component(.year, from: $0.date) == selectedYear && $0.type == .variableExpense
+                                                    }
                                                     showVariableDetail = true
                                                 default:
                                                     break
@@ -242,92 +237,51 @@ struct BalanceView: View {
                         GeometryReader { geometry in
                             VStack {
                                 HStack {
-                                    Spacer()
-                                    Text("""
-                                    No data available yet. 
-                                    Please add some expenses.
-                                    If you start with January all fixed Expenses can be used for for the rest of the year. If you'd like to use this feature, please enable it below. 
-                                    These values can be edited for each month later on in the Settings.
-                                    Use this icon below \(Image(systemName: "pencil.and.list.clipboard"))
-                                    """)
-                                    .foregroundColor(colorScheme == .dark ? .white : .black)
-                                    .frame(maxWidth: geometry.size.width * 0.75)
-                                    .multilineTextAlignment(.center)
+                                    Text("No data available")
                                     Spacer()
                                 }
-                                Spacer()
-                                HStack {
-                                    Toggle(isOn: $copyFixedExpenses) {
-                                        Text("Copy Fixed Expenses")
-                                    }
-                                    .frame(maxWidth: 300)
-                                    .padding()
-                                }
-                                Spacer()
                             }
                         }
                         Spacer()
                     }
                 }
                 
-                // NavigationLink separat nach Legende
-                NavigationLink(destination: YearlyBalanceView(settings: settings, selectedMonth: $selectedMonth, selectedYear: $selectedYear)) {
-                    Text("Show Yearly Balance")
-                        .foregroundColor(.white)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
-                        .background(Color(.blue))
-                        .cornerRadius(20)
-                }
-                // Use navigationDestination for detailed expenses chart
-                .navigationDestination(isPresented: $showVariableDetail) {
-                    DetailedExpensesView(settings: settings, title: NSLocalizedString("Variable Expenses", comment: ""), transactions: selectedVariableItems)
-                }
-                .navigationDestination(isPresented: $showFixedDetail) {
-                    DetailedExpensesView(settings: settings, title: NSLocalizedString("Fixed Expenses", comment: ""), transactions: selectedFixedItems)
-                }
                 Spacer(minLength: 50)
-            }
+                // Deprecated, but required for correct back-navigation from DetailedExpensesView to YearlyBalanceView
+                NavigationLink(
+                    destination: DetailedExpensesView(settings: settings, title: NSLocalizedString("Fixed Expenses", comment: ""), transactions: selectedFixedItems),
+                    isActive: $showFixedDetail,
+                    label: { EmptyView() }
+                )
 
+                NavigationLink(
+                    destination: DetailedExpensesView(settings: settings, title: NSLocalizedString("Variable Expenses", comment: ""), transactions: selectedVariableItems),
+                    isActive: $showVariableDetail,
+                    label: { EmptyView() }
+                )
+            }
             .onChange(of: selectedMonth) {
-                if copyFixedExpenses {
-                    let date = Calendar.current.date(from: DateComponents(year: selectedYear, month: selectedMonth, day: 1))!
-                    Task {
-                        await copyFixedExpensesIfNeededAsync(for: date)
-                    }
-                } else {
-                    // No prints here
-                }
+ 
             }
 
             .onChange(of: selectedYear) {
-                if copyFixedExpenses {
-                    let date = Calendar.current.date(from: DateComponents(year: selectedYear, month: selectedMonth, day: 1))!
-                    Task {
-                        await copyFixedExpensesIfNeededAsync(for: date)
-                    }
-                } else {
-                    // No prints here
-                }
+
             }
             
             .onAppear {
+                debugFilteredItems()
+                debugPrint("Initial fetch for items and balances...")
+                debugPrint("Fetched items count: \(fetchedItems.count)")
+                debugPrint("Fetched balances count: \(balances.count)")
+
                 let selectedDate = Calendar.current.date(from: DateComponents(year: selectedYear, month: selectedMonth, day: 1))!
 
-                if copyFixedExpenses {
-                    Task {
-                        await copyFixedExpensesIfNeededAsync(for: selectedDate)
-                    }
-                } else {
-                    // No prints here
-                }
-
-                // Check balance values
+                // Prüfung der Balance-Einträge
                 balances.forEach { balance in
                     let comps = Calendar.current.dateComponents([.year, .month], from: balance.month)
                     let selectedComps = Calendar.current.dateComponents([.year, .month], from: selectedDate)
                     if comps.year == selectedComps.year && comps.month == selectedComps.month {
-                        // Match found
+                        // Match gefunden
                     }
                 }
             }
@@ -341,65 +295,10 @@ struct BalanceView: View {
     }
     
     func debugFilteredItems() {
-
-    }
-    
-    func copyFixedExpensesIfNeeded(for selectedDate: Date) {
-
-        Task {
-            await copyFixedExpensesIfNeededAsync(for: selectedDate)
-        }
-    }
-
-    // Async operation for copying fixed expenses
-    func copyFixedExpensesIfNeededAsync(for selectedDate: Date) async {
-        let calendar = Calendar.current
-        let selectedMonth = calendar.component(.month, from: selectedDate)
-        let selectedYear = calendar.component(.year, from: selectedDate)
-
-        let currentMonthTransactions = fetchedItems.filter {
-            calendar.component(.month, from: $0.date) == selectedMonth &&
-            calendar.component(.year, from: $0.date) == selectedYear &&
-            $0.type == .fixedExpense
-        }
-
-        if !currentMonthTransactions.isEmpty {
-            return
-        }
-
-        let previousFixed = fetchedItems
-            .filter { $0.type == .fixedExpense && $0.date < selectedDate }
-            .sorted { $0.date > $1.date }
-
-        guard let lastMonthDate = previousFixed.first?.date else {
-            return
-        }
-
-        let lastMonthFixed = previousFixed.filter {
-            calendar.isDate($0.date, equalTo: lastMonthDate, toGranularity: .month)
-        }
-
-        if lastMonthFixed.count < 5 {
-            return
-        }
-
-        var insertedCount = 0
-        for tx in lastMonthFixed {
-            let copiedTransaction = Transaction(
-                date: selectedDate,
-                category: tx.category,
-                amount: tx.amount,
-                type: .fixedExpense
-            )
-            modelContext.insert(copiedTransaction)
-            insertedCount += 1
-        }
-
-        do {
-            try modelContext.save()
-        } catch {
-            // No prints here
+        let filtered = filteredItems(for: selectedMonth, year: selectedYear)
+        print("Filtered Items for \(selectedMonth)/\(selectedYear): \(filtered.count) Items found")
+        filtered.forEach { item in
+            print("→ \(item.type.rawValue), \(item.category), \(item.amount), \(item.date)")
         }
     }
 }
-

@@ -12,51 +12,67 @@ struct InputView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var settings: Settings
+    @Bindable var settings: Settings
     
-    @State var category: Category = .expense
+    private let helper = FinanceHelper()
+    
+    @State var category: Category = .income
     @State var amountString: String = ""
-    @State var itemType: ItemType = .variableExpense
+    @State var itemType: ItemType = .income
     
-    @State private var selectedMonthInternal: Int
-    let selectedMonth: Int
+    @Binding var selectedMonthBinding: Int
     let selectedYear: Int
     
     @State private var startBalanceString: String = ""
     @State private var endBalanceString: String = ""
     @State private var yearlyExpenseAmount: String = ""
     
-    init(selectedMonth: Int, selectedYear: Int) {
-        self.selectedMonth = selectedMonth
+    init(selectedMonth: Binding<Int>, selectedYear: Int, settings: Settings) {
+        self._selectedMonthBinding = selectedMonth
         self.selectedYear = selectedYear
-        _selectedMonthInternal = State(initialValue: selectedMonth)
+        self._settings = Bindable(wrappedValue: settings)
+    }
+    
+    private var isBalanceAlreadySaved: Bool {
+        guard let selectedDate = Date.from(year: selectedYear, month: selectedMonthBinding) else {
+            return false
+        }
+        let existing = try? modelContext.fetch(FetchDescriptor<MonthlyBalance>())
+        return existing?.contains(where: {
+            $0.month.isSameMonth(as: selectedDate)
+        }) ?? false
     }
     
     var body: some View {
         Form {
-            Section(header: Text("Transaktion hinzufügen")) {
+            Section(header: Text("Add transaction")) {
                 HStack {
                     Text("Amount:")
                     TextField("Enter amount", text: $amountString)
                         .keyboardType(.decimalPad)
                 }
 
-                Picker("Category", selection: $category) {
-                    ForEach(Category.allCases, id: \.self) { priority in
-                        Text(priority.localizedString).tag(priority)
+                Picker("Category:", selection: $category) {
+                    ForEach(Category.allCases.filter { $0 != .household }, id: \.self) { category in
+                        Text(category.localizedString).tag(category)
                     }
                 }
 
+                Text("Type:")
                 Picker("Type", selection: $itemType) {
-                    ForEach(ItemType.allCases, id: \.self) { type in
+                    ForEach(ItemType.allCases.filter { $0 != .calculatedHousehold }, id: \.self) { type in
                         Text(type.localizedName).tag(type)
                     }
                 }
+                .pickerStyle(SegmentedPickerStyle())
 
-                Picker("Monat", selection: $selectedMonthInternal) {
+                Picker("Month:", selection: $selectedMonthBinding) {
                     ForEach(1...12, id: \.self) { month in
                         Text(DateFormatter().monthSymbols[month - 1]).tag(month)
                     }
+                }
+                .onChange(of: selectedMonthBinding) {
+                    preloadStartBalanceIfAvailable()
                 }
 
                 Button("Add transaction") {
@@ -64,58 +80,38 @@ struct InputView: View {
                 }
             }
 
-            Section(header: Text("Saldo erfassen")) {
+            Section(header: Text("Monthly Balance")) {
                 HStack {
-                    Text("Anfangssaldo:")
-                    TextField("z. B. 2000", text: $startBalanceString)
+                    Text("Start Balance:")
+                    TextField("End previous month", text: $startBalanceString)
                         .keyboardType(.decimalPad)
                 }
                 HStack {
-                    Text("Endsaldo:")
-                    TextField("z. B. 2600", text: $endBalanceString)
+                    Text("End Balance:")
+                    TextField("End this month", text: $endBalanceString)
                         .keyboardType(.decimalPad)
                 }
-                Button("Saldo speichern") {
+                Button("Save Balance") {
                     saveBalances()
                 }
-                if !startBalanceString.isEmpty || !endBalanceString.isEmpty {
-                    let startValid = Double(startBalanceString.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)) != nil
-                    let endValid = Double(endBalanceString.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)) != nil
-                    if !startValid || !endValid {
-                        Text("Bitte gültige Werte für Anfangs- und Endsaldo eingeben.")
-                            .font(.footnote)
-                            .foregroundColor(.red)
-                    }
-                }
+                .disabled(isBalanceAlreadySaved)
             }
-            
-            Section(header: Text("Jährliche Ausgaben")) {
-                HStack {
-                    Text("Betrag:")
-                    TextField("z. B. 1200", text: $yearlyExpenseAmount)
-                        .keyboardType(.decimalPad)
-                }
-                Button("Jährliche Ausgabe speichern") {
-                    saveYearlyExpense()
-                }
-            }
+        }
+        .background(Color(hex: settings.backgroundColor))  // Set background color based on settings
+        // Dynamically update theme mode based on the system mode or user choice
+        .preferredColorScheme(settings.themeMode == "system" ? colorScheme : (settings.themeMode == "dark" ? .dark : .light))
+        .onAppear {
+            preloadStartBalanceIfAvailable()
         }
     }
     
     private func addTransaction() {
         withAnimation {
-            let cleanAmount = amountString.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)
-            guard let amount = Double(cleanAmount) else { return }
+            guard let amount = helper.parseAmount(amountString) else { return }
 
-            let categoryValue: String
-            if itemType == .income || itemType == .startingBalance {
-                categoryValue = ""
-            } else {
-                categoryValue = category.rawValue
-            }
+            let categoryValue = category.rawValue
 
-            let calendar = Calendar.current
-            let selectedDate = calendar.date(from: DateComponents(year: selectedYear, month: selectedMonthInternal, day: 1)) ?? Date()
+            guard let selectedDate = Date.from(year: selectedYear, month: selectedMonthBinding) else { return }
 
             let newTransaction = Transaction(
                 date: selectedDate,
@@ -126,28 +122,22 @@ struct InputView: View {
 
             modelContext.insert(newTransaction)
             amountString = ""
+            hideKeyboard()
         }
     }
     
     private func saveBalances() {
-        let startClean = startBalanceString.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)
-        let endClean = endBalanceString.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)
-        print("DEBUG → Rohwerte: start = \(startClean), end = \(endClean)")
-
-        guard let start = Double(startClean), let end = Double(endClean) else {
-            print("Ungültige Eingabe: start = \(startClean), end = \(endClean)")
+        guard let start = helper.parseAmount(startBalanceString), let end = helper.parseAmount(endBalanceString) else {
+            print("Invalid value: start = \(startBalanceString), end = \(endBalanceString)")
             return
         }
-        
-        print("DEBUG → Konvertiert: Start: \(start), End: \(end)")
 
-        let calendar = Calendar.current
-        let selectedDate = calendar.date(from: DateComponents(year: selectedYear, month: selectedMonthInternal, day: 1)) ?? Date()
+        guard let selectedDate = Date.from(year: selectedYear, month: selectedMonthBinding) else { return }
 
         // Überprüfen, ob bereits ein Eintrag für diesen Monat existiert
         let existing = try? modelContext.fetch(FetchDescriptor<MonthlyBalance>())
-        if let match = existing?.first(where: { Calendar.current.isDate($0.month, equalTo: selectedDate, toGranularity: .month) }) {
-            print("Eintrag für diesen Monat existiert bereits: \(match.month)")
+        if let match = existing?.first(where: { $0.month.isSameMonth(as: selectedDate) }) {
+            print("Data already available for this month: \(match.month)")
             return
         }
 
@@ -162,22 +152,44 @@ struct InputView: View {
         )
         modelContext.insert(newBalance)
         try? modelContext.save()
-        startBalanceString = ""
-        endBalanceString = ""
+        hideKeyboard()
     }
     
-    private func saveYearlyExpense() {
-        let cleanAmount = yearlyExpenseAmount.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)
-        guard let amount = Double(cleanAmount) else { return }
+    private func preloadStartBalanceIfAvailable() {
+        guard let currentMonthDate = Date.from(year: selectedYear, month: selectedMonthBinding),
+              let previousMonthDate = Date.from(year: selectedYear, month: selectedMonthBinding - 1) ??
+                                       Date.from(year: selectedYear - 1, month: 12) else {
+            startBalanceString = ""
+            endBalanceString = ""
+            return
+        }
 
-        let newExpense = YearlyExpense(category: "Allgemein", amount: amount, appliesToMonthlyBalance: false)
-        modelContext.insert(newExpense)
+        let existing = try? modelContext.fetch(FetchDescriptor<MonthlyBalance>())
 
-        yearlyExpenseAmount = ""
+        // Check if current month already has a saved balance
+        let isCurrentMonthSaved = existing?.contains(where: { $0.month.isSameMonth(as: currentMonthDate) }) ?? false
+
+        if isCurrentMonthSaved {
+            // Clear both fields if current month already has data
+            startBalanceString = ""
+            endBalanceString = ""
+            return
+        }
+
+        // Preload start balance from previous month if available
+        if let previousBalance = existing?.first(where: {
+            $0.month.isSameMonth(as: previousMonthDate)
+        }) {
+            startBalanceString = String(format: "%.2f", previousBalance.endBalance)
+        } else {
+            startBalanceString = ""
+        }
+        endBalanceString = ""
     }
 }
 
-#Preview {
-    InputView(selectedMonth: 1, selectedYear: 2024)
-        .modelContainer(for: [Transaction.self, MonthlyBalance.self, Settings.self, YearlyExpense.self], inMemory: true)
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }

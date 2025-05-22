@@ -24,47 +24,69 @@ struct ContentView: View {
     var body: some View {
         
         TabView {
-            
-            BalanceView(selectedMonth: $selectedMonth, selectedYear: $selectedYear)
+            BalanceView(settings: settingsList.first ?? Settings(), selectedMonth: $selectedMonth, selectedYear: $selectedYear)
                 .tabItem {
                     Image(systemName: "plus.forwardslash.minus")
                     Text("Balance")
                 }
             
-            InputView(selectedMonth: 3, selectedYear: 2025)
+            InputView(selectedMonth: $selectedMonth, selectedYear: selectedYear, settings: settingsList.first ?? Settings())
                 .tabItem {
-                    Image(systemName: "list.bullet")
+                    Image(systemName: "pencil.and.list.clipboard")
                     Text("Spendings")
                 }
             
-            if let storedSettings = settingsList.first,
-               let storedBalance = monthlyBalances.first {
-                SettingsView(
-                    settings: storedSettings,
-                    monthlyBalance: storedBalance,
-                    selectedDate: Calendar.current.date(from: DateComponents(year: selectedYear, month: selectedMonth))!
-                )
+            TransactionView(settings: settingsList.first ?? Settings(), selectedMonth: $selectedMonth, selectedYear: $selectedYear)
                 .tabItem {
-                    Image(systemName: "gear")
-                    Text("Settings")
+                    Image(systemName: "pencil")
+                    Text("Edit")
                 }
-            } else {
-                Text("Lade Einstellungen...")
+            
+            let storedBalance = monthlyBalances.first(where: {
+                Calendar.current.component(.month, from: $0.month) == selectedMonth &&
+                Calendar.current.component(.year, from: $0.month) == selectedYear
+            }) ?? MonthlyBalance(month: Calendar.current.date(from: DateComponents(year: selectedYear, month: selectedMonth)) ?? Date())
+
+            SettingsView(
+                settings: settingsList.first ?? Settings(),
+                monthlyBalance: storedBalance,
+                selectedMonth: $selectedMonth,
+                selectedYear: $selectedYear
+            )
+            .tabItem {
+                Image(systemName: "gear")
+                Text("Settings")
             }
         }
         .onAppear {
             if settingsList.isEmpty {
-                let new = Settings(themeMode: "system", backgroundColor: "#FFFFFF")
-                modelContext.insert(new)
-                try? modelContext.save()
+                let newSettings = Settings()
+                modelContext.insert(newSettings)
             }
+            saveSettings() // Speichern nach dem Laden der View
+        }
+        .onChange(of: settingsList) { oldValue, newValue in
+            if let first = newValue.first {
+                print("Settings loaded: \(first)")
+            } else {
+                print("No settings available")
+            }
+        }
+        .preferredColorScheme(settingsList.first?.themeMode == "system" ? colorScheme : (settingsList.first?.themeMode == "dark" ? .dark : .light))
+    }
+    
+    func saveSettings() {
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving settings: \(error)")
         }
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Transaction.self, MonthlyBalance.self, Settings.self, YearlyExpense.self], inMemory: true)
+        .modelContainer(for: [Transaction.self, MonthlyBalance.self, Settings.self], inMemory: true)
 }
 
     

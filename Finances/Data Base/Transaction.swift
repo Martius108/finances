@@ -22,9 +22,9 @@ final class Transaction {
 
         var localizedName: String {
             switch self {
-            case .income: return "Income"
-            case .fixedExpense: return "Fixed Expense"
-            case .variableExpense: return "Variable Expense"
+            case .income: return NSLocalizedString("Income", comment: "")
+            case .fixedExpense: return NSLocalizedString("Fixed Expense", comment: "")
+            case .variableExpense: return NSLocalizedString("Variable Expense", comment: "")
             }
         }
     }

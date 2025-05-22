@@ -10,10 +10,11 @@ import SwiftData
 
 @Model
 final class Settings: ObservableObject {
-    var themeMode: String = "system"
-    var backgroundColor: String = "#FFFFFF"
+    
+    var themeMode: String
+    var backgroundColor: String
 
-    init(themeMode: String, backgroundColor: String) {
+    init(themeMode: String = "system", backgroundColor: String = "#FFFFFF") {
         self.themeMode = themeMode
         self.backgroundColor = backgroundColor
     }

@@ -9,9 +9,10 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-// View for adjusting app settings like theme, background, and opacity
+// View for adjusting app settings and editing other App values
 struct SettingsView: View {
-    var selectedDate: Date
+    @Binding var selectedMonth: Int
+    @Binding var selectedYear: Int
     
     // Access the model context to save changes
     @Environment(\.modelContext) private var modelContext
@@ -19,8 +20,7 @@ struct SettingsView: View {
     @Environment(\.colorScheme) var colorScheme
     // Bind the settings instance to this view
     @Bindable var settings: Settings
-    
-    @Query var monthlyBalances: [MonthlyBalance]
+
     @Bindable var monthlyBalance: MonthlyBalance
     
     @Query var allTransactions: [Transaction]
@@ -28,10 +28,13 @@ struct SettingsView: View {
     @State private var isEditingStart = false
     @State private var isEditingEnd = false
     
-    init(settings: Settings, monthlyBalance: MonthlyBalance, selectedDate: Date) {
+    private let helper = FinanceHelper()
+    
+    init(settings: Settings, monthlyBalance: MonthlyBalance, selectedMonth: Binding<Int>, selectedYear: Binding<Int>) {
         self._settings = Bindable(wrappedValue: settings)
         self._monthlyBalance = Bindable(wrappedValue: monthlyBalance)
-        self.selectedDate = selectedDate
+        self._selectedMonth = selectedMonth
+        self._selectedYear = selectedYear
     }
     
     var body: some View {
@@ -72,7 +75,7 @@ struct SettingsView: View {
                         }
                     ))
                 }
-                
+                // Monthly Balance Section
                 Section(header: Text("Monthly Balance")) {
                     HStack {
                         Text("Start Balance:")
@@ -86,7 +89,7 @@ struct SettingsView: View {
                                     isEditingStart = false
                                 }
                         } else {
-                            Text("\(monthlyBalance.startBalance, format: .currency(code: "EUR"))")
+                            Text("\(monthlyBalance.startBalance, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))")
                             Button {
                                 isEditingStart = true
                             } label: {
@@ -106,7 +109,7 @@ struct SettingsView: View {
                                     isEditingEnd = false
                                 }
                         } else {
-                            Text("\(monthlyBalance.endBalance, format: .currency(code: "EUR"))")
+                            Text("\(monthlyBalance.endBalance, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))")
                             Button {
                                 isEditingEnd = true
                             } label: {
@@ -115,18 +118,19 @@ struct SettingsView: View {
                         }
                     }
                 }
-                
+                // Get all fixed expense values here to edit them
                 Section(header: Text("Fixed Expenses")) {
                     let calendar = Calendar.current
+                    let selectedDate = Calendar.current.date(from: DateComponents(year: selectedYear, month: selectedMonth))!
                     let fixedExpensesForMonth = allTransactions.filter {
                         $0.type == .fixedExpense &&
                         calendar.isDate($0.date, equalTo: selectedDate, toGranularity: .month)
                     }
 
                     ForEach(fixedExpensesForMonth) { tx in
-                        NavigationLink(destination: FixedExpenseEditView(transaction: tx)) {
+                        NavigationLink(destination: TransactionEditView(transaction: .constant(tx))) {
                             HStack {
-                                Text(tx.category)
+                                Text(Category(rawValue: tx.category)?.localizedString ?? tx.category)
                                 Spacer()
                                 Text("\(tx.amount, format: .currency(code: "EUR"))")
                             }
@@ -136,30 +140,42 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .onAppear {
-                saveSettings()
+                loadMonthlyBalance()
             }
         }
     }
             
     private func saveSettings() {
         do {
-            try modelContext.save()  // Speichern der Änderungen im modelContext
+            try modelContext.save()  // Save changes in modelContext
             print("Settings successfully saved.")
         } catch {
             print("Error saving settings: \(error.localizedDescription)")
         }
     }
-}
 
-struct FixedExpenseEditView: View {
-    @Bindable var transaction: Transaction
+    private func loadMonthlyBalance() {
+        let calendar = Calendar.current
+        guard let selectedDate = calendar.date(from: DateComponents(year: selectedYear, month: selectedMonth)) else { return }
+        let allBalances = try? modelContext.fetch(FetchDescriptor<MonthlyBalance>())
 
-    var body: some View {
-        Form {
-            TextField("Category", text: $transaction.category)
-            TextField("Amount", value: $transaction.amount, format: .number)
-                .keyboardType(.decimalPad)
+        if let foundBalance = allBalances?.first(where: {
+            calendar.isDate($0.month, equalTo: selectedDate, toGranularity: .month)
+        }) {
+            monthlyBalance.startBalance = foundBalance.startBalance
+            monthlyBalance.endBalance = foundBalance.endBalance
+            monthlyBalance.netBalance = foundBalance.netBalance
+            monthlyBalance.householdValue = foundBalance.householdValue
+            monthlyBalance.totalIncome = foundBalance.totalIncome
+            monthlyBalance.totalExpenses = foundBalance.totalExpenses
+        } else {
+            // Nur initialisieren, wenn *wirklich* keine Werte gesetzt sind
+            if monthlyBalance.startBalance == 0.0 {
+                let result = helper.preloadStartBalanceForMonth(year: selectedYear, month: selectedMonth, modelContext: modelContext)
+                monthlyBalance.startBalance = Double(result) ?? 0.0
+            }
+            // endBalance NICHT antasten
         }
-        .navigationTitle("Edit Expense")
     }
 }
+
