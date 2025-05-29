@@ -609,6 +609,22 @@
         }
       }
     },
+    "Getting amount ..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ermittle Betrag …"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting amount …"
+          }
+        }
+      }
+    },
     "Household" : {
       "localizations" : {
         "de" : {
@@ -753,6 +769,38 @@
         }
       }
     },
+    "No Image Selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Bild ausgewählt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Image Selected"
+          }
+        }
+      }
+    },
+    "Picture Library" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotomediathek"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picture Library"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "de" : {
@@ -893,6 +941,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "System"
+          }
+        }
+      }
+    },
+    "Take a Photo" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto aufnehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a Photo"
           }
         }
       }

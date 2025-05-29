@@ -16,9 +16,9 @@ struct InputView: View {
     
     private let helper = FinanceHelper()
     
-    @State var category: Category = .income
+    @State var category: Category = .restaurant
     @State var amountString: String = ""
-    @State var itemType: ItemType = .income
+    @State var itemType: ItemType = .variableExpense
     
     @Binding var selectedMonthBinding: Int
     let selectedYear: Int
@@ -44,13 +44,29 @@ struct InputView: View {
     }
     
     var body: some View {
-        Form {
-            Section(header: Text("Add transaction")) {
-                HStack {
-                    Text("Amount:")
-                    TextField("Enter amount", text: $amountString)
-                        .keyboardType(.decimalPad)
-                }
+        // Ensure a NavigationStack is present for navigation
+        NavigationStack {
+            Form {
+                Section(header: Text("Add transaction")) {
+                    HStack {
+                        Text("Amount:")
+                        TextField("Enter amount", text: $amountString)
+                            .keyboardType(.decimalPad)
+                            .frame(width: 180)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        Spacer()
+                        Spacer()
+                        Spacer()
+                        NavigationLink {
+                            ReceiptScannerView { total in
+                                amountString = String(format: "%.2f", total)
+                            }
+                        } label: {
+                            Image(systemName: "barcode.viewfinder")
+                                .foregroundStyle(.blue)
+                                .imageScale(.large)
+                        }
+                    }
 
                 Picker("Category:", selection: $category) {
                     ForEach(Category.allCases.filter { $0 != .household }, id: \.self) { category in
@@ -80,28 +96,29 @@ struct InputView: View {
                 }
             }
 
-            Section(header: Text("Monthly Balance")) {
-                HStack {
-                    Text("Start Balance:")
-                    TextField("End previous month", text: $startBalanceString)
-                        .keyboardType(.decimalPad)
+                Section(header: Text("Monthly Balance")) {
+                    HStack {
+                        Text("Start Balance:")
+                        TextField("End previous month", text: $startBalanceString)
+                            .keyboardType(.decimalPad)
+                    }
+                    HStack {
+                        Text("End Balance:")
+                        TextField("End this month", text: $endBalanceString)
+                            .keyboardType(.decimalPad)
+                    }
+                    Button("Save Balance") {
+                        saveBalances()
+                    }
+                    .disabled(isBalanceAlreadySaved)
                 }
-                HStack {
-                    Text("End Balance:")
-                    TextField("End this month", text: $endBalanceString)
-                        .keyboardType(.decimalPad)
-                }
-                Button("Save Balance") {
-                    saveBalances()
-                }
-                .disabled(isBalanceAlreadySaved)
             }
-        }
-        .background(Color(hex: settings.backgroundColor))  // Set background color based on settings
-        // Dynamically update theme mode based on the system mode or user choice
-        .preferredColorScheme(settings.themeMode == "system" ? colorScheme : (settings.themeMode == "dark" ? .dark : .light))
-        .onAppear {
-            preloadStartBalanceIfAvailable()
+            .background(Color(hex: settings.backgroundColor))  // Set background color based on settings
+            // Dynamically update theme mode based on the system mode or user choice
+            .preferredColorScheme(settings.themeMode == "system" ? colorScheme : (settings.themeMode == "dark" ? .dark : .light))
+            .onAppear {
+                preloadStartBalanceIfAvailable()
+            }
         }
     }
     
