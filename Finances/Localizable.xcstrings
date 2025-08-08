@@ -84,6 +84,22 @@
         }
       }
     },
+    "All Expenses:" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Ausgaben:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Expenses:"
+          }
+        }
+      }
+    },
     "Amount" : {
       "localizations" : {
         "de" : {
@@ -112,6 +128,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Amount:"
+          }
+        }
+      }
+    },
+    "Average Monthly Expense:" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mittlere monatl. Ausgaben:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Average Monthly Expenses:"
+          }
+        }
+      }
+    },
+    "Average Monthly Income:" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mittlere monatl. Einnahmen:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Average Monthly Income:"
           }
         }
       }
@@ -742,13 +790,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine Daten verfügbar"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No data available"
+            "value" : "Keine Daten vorhanden"
           }
         }
       }

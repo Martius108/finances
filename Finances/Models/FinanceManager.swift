@@ -97,17 +97,63 @@ struct FinanceManager {
             .map(\.amount)
             .reduce(0, +)
         
-        let expensesTotal = items.filter {
-            ($0.type == .fixedExpense || $0.type == .variableExpense) &&
-            Calendar.current.component(.year, from: $0.date) == year
-        }
-            .map(\.amount)
-            .reduce(0, +)
+        let expensesTotal = fixedAndVariableExpenses(from: items, year: year)
         
         return incomeTotal - expensesTotal
     }
     
     func expenseRatio(income: Double, expenses: Double) -> Double {
         return income == 0 ? 0 : expenses / income
+    }
+    
+    func calculateYearlyExpenseAverage(
+        items: [Transaction],
+        balances: [MonthlyBalance],
+        forYear year: Int
+    ) -> Double {
+        let yearMonths = (1...12)
+
+        let yearlyHousehold = yearMonths.reduce(0.0) { total, month in
+            let (household, _) = self.calculatedHouseholdExpense(
+                items: items,
+                month: month,
+                year: year,
+                balances: balances
+            )
+            print("Household for \(month)/\(year): \(household)")
+            return total + household
+        }
+
+        let yearlyFixedAndVariable = fixedAndVariableExpenses(from: items, year: year)
+        print("Fixed and variable expenses for \(year): \(yearlyFixedAndVariable)")
+
+        let yearlyTotal = yearlyHousehold + yearlyFixedAndVariable
+        print("Yearly total expenses before averaging: \(yearlyTotal)")
+
+        return yearlyTotal / 12
+    }
+    
+    func fixedAndVariableExpenses(from items: [Transaction], year: Int) -> Double {
+        items.filter {
+            ($0.type == .fixedExpense || $0.type == .variableExpense) &&
+            Calendar.current.component(.year, from: $0.date) == year
+        }
+        .map { abs($0.amount) }
+        .reduce(0, +)
+    }
+    
+    func averageMonthlyIncome(items: [Transaction]) -> Double {
+        let incomeItems = items.filter { $0.type == .income }
+
+        let totalIncome = incomeItems
+            .map(\.amount)
+            .reduce(0, +)
+
+        let months = Set(incomeItems.map {
+            let components = Calendar.current.dateComponents([.year, .month], from: $0.date)
+            return "\(components.year ?? 0)-\(components.month ?? 0)"
+        }).count
+
+        return months > 0 ? totalIncome / Double(months) : 0
     }
 }

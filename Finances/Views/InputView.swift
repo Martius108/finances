@@ -15,6 +15,7 @@ struct InputView: View {
     @Bindable var settings: Settings
     
     private let helper = FinanceHelper()
+    private let manager = FinanceManager()
     
     @State var category: Category = .restaurant
     @State var amountString: String = ""
@@ -26,6 +27,8 @@ struct InputView: View {
     @State private var startBalanceString: String = ""
     @State private var endBalanceString: String = ""
     @State private var yearlyExpenseAmount: String = ""
+    @State private var totalExpenses: Double = 0.0
+    @State private var household: Double = 0.0
     
     init(selectedMonth: Binding<Int>, selectedYear: Int, settings: Settings) {
         self._selectedMonthBinding = selectedMonth
@@ -89,6 +92,15 @@ struct InputView: View {
                 }
                 .onChange(of: selectedMonthBinding) {
                     preloadStartBalanceIfAvailable()
+                    let transactions = try? modelContext.fetch(FetchDescriptor<Transaction>())
+                    if let tx = transactions {
+                        totalExpenses = manager.expenses(items: tx, month: selectedMonthBinding, year: selectedYear)
+                    }
+                    let balances = try? modelContext.fetch(FetchDescriptor<MonthlyBalance>())
+                    if let tx = transactions, let bl = balances {
+                        let result = manager.calculatedHouseholdExpense(items: tx, month: selectedMonthBinding, year: selectedYear, balances: bl)
+                        household = result.0
+                    }
                 }
 
                 Button("Add transaction") {
@@ -97,6 +109,10 @@ struct InputView: View {
             }
 
                 Section(header: Text("Monthly Balance")) {
+                    HStack {
+                        Text("All Expenses:")
+                        Text(String(format: "%.2f €", totalExpenses + household))
+                    }
                     HStack {
                         Text("Start Balance:")
                         TextField("End previous month", text: $startBalanceString)
@@ -112,12 +128,41 @@ struct InputView: View {
                     }
                     .disabled(isBalanceAlreadySaved)
                 }
+                
+                Section(header: Text("Yearly Balance")) {
+                    let transactions = try? modelContext.fetch(FetchDescriptor<Transaction>())
+                    let balances = try? modelContext.fetch(FetchDescriptor<MonthlyBalance>())
+                    let averageEx = manager.calculateYearlyExpenseAverage(
+                        items: transactions ?? [],
+                        balances: balances ?? [],
+                        forYear: selectedYear
+                    )
+                    let averageIn = manager.averageMonthlyIncome(items: transactions ?? [])
+
+                    HStack {
+                        Text("Average Monthly Expense:")
+                        Text(String(format: "%.2f €", averageEx))
+                    }
+                    HStack {
+                        Text("Average Monthly Income:")
+                        Text(String(format: "%.2f €", averageIn))
+                    }
+                }
             }
             .background(Color(hex: settings.backgroundColor))  // Set background color based on settings
             // Dynamically update theme mode based on the system mode or user choice
             .preferredColorScheme(settings.themeMode == "system" ? colorScheme : (settings.themeMode == "dark" ? .dark : .light))
             .onAppear {
                 preloadStartBalanceIfAvailable()
+                let transactions = try? modelContext.fetch(FetchDescriptor<Transaction>())
+                if let tx = transactions {
+                    totalExpenses = manager.expenses(items: tx, month: selectedMonthBinding, year: selectedYear)
+                }
+                let balances = try? modelContext.fetch(FetchDescriptor<MonthlyBalance>())
+                if let tx = transactions, let bl = balances {
+                    let result = manager.calculatedHouseholdExpense(items: tx, month: selectedMonthBinding, year: selectedYear, balances: bl)
+                    household = result.0
+                }
             }
         }
     }

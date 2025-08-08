@@ -17,7 +17,7 @@ class TotalExtractor {
             .filter { !$0.isEmpty }
 
         // Primary keywords
-        let keywordRegex = try? NSRegularExpression(pattern: #"(?i)\b(summe|zu zahlen|total|zws-summe|endsumme|gesamt|gesamtsumme)\b"#)
+        let keywordRegex = try? NSRegularExpression(pattern: #"(?i)\b(summe|zu zahlen|total|zws-summe|endsumme|gesamt|betrag|zwischensumme|gesamtsumme)\b"#)
         // Matches numbers with either comma or dot as decimal separator, allowing thousand separators and spaces
         let priceRegex   = try? NSRegularExpression(pattern: #"\d{1,3}(?:[ .]\d{3})*\s*[.,]\s*\d{2}"#)
 
